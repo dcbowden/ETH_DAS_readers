@@ -25,6 +25,7 @@ from datetime import datetime, timedelta
 import glob
 import h5py
 import os
+from re import split
 
 l_fields = []
 l_attrs = []
@@ -37,6 +38,21 @@ def reset_attributes():
     l_fields.clear()
     l_attrs.clear()
     return(None)
+
+def list_headers(file):
+   #-- Reset containers for headers      
+    reset_attributes()
+
+    with h5py.File(file, "r") as f:
+        f.visit(browse_file_attributes)
+        for group in l_fields:
+            l_k = f[group].attrs.keys()
+            for k in l_k:
+                l_attrs.append([group,k,f[group].attrs[k]])
+                #- Use the print function to see all headers and the general structure
+                print(group,k,f[group].attrs[k])    
+
+
 
 def load_headers_only(file, verbose=False):
     """
@@ -121,6 +137,18 @@ def load_headers_only(file, verbose=False):
         if(verbose):
             print("Loading headers from: {0}, start: {1}, end: {2}".format(file, headers['t0'], headers['t1']))   
 
+    ## metadata problem: timestamps missing. Check, and get time from filename:
+    if(headers['t0'] == datetime(1970,1,1,0,0,0)):
+        filesplit = split('UTC_',file)
+        file_start = datetime.strptime(filesplit[1],'%Y%m%d_%H%M%S.%f.h5')
+        headers['t0'] = file_start
+        headers['t1'] = file_start + timedelta(seconds=(30-1/headers['fs']))
+        if(verbose):
+            print('Header issue, missing timestamp. Filling based on filename:')
+            print('{0}'.format(file))
+            print('   t0 = {0}'.format(headers['t0']))
+            print('   t1 = {0}'.format(headers['t1']))
+
     return(headers)
 
 def load_file(file, convert=False, return_axis=True, verbose=False):
@@ -137,7 +165,7 @@ def load_file(file, convert=False, return_axis=True, verbose=False):
     :            - dd         -- channel distances
     """
 
-    headers = load_headers_only(file)
+    headers = load_headers_only(file,verbose=verbose)
     #-- (Using this other function to load headers is cleaner, but currently
     #--   it means the file is opened and closed twice)
 
@@ -352,7 +380,7 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
 
     return consider_files
 
-def load_das_custom(t_start, t_end, d_start=0, d_end=0, convert=False, verbose=False, input_dir='./', return_axis=True, nth_channel=1):
+def load_das_custom(t_start, t_end, d_start=0, d_end=0, ichan=[], convert=False, verbose=False, input_dir='./', return_axis=True, nth_channel=1):
     """
     data, heades, axis = load_das_custom(t_start, t_end, d_start=0, d_end=0, convert=False, verbose=False, input_dir='./')
     :Custom function to load files in a flexible way. 
@@ -373,6 +401,7 @@ def load_das_custom(t_start, t_end, d_start=0, d_end=0, convert=False, verbose=F
     :t_end   -- datetime object end
     :d_start -- (optional) fibre distance at which to start returning data
     :d_end   -- (optional) fibre distance at which to stop
+    :ichan   -- (optional) np array of specific indices to load (not compatible with d_start/d_end) 
     :convert -- (optional) boolean to convert to strain rate if not already done
     :            WARNING: This requires knowing the sample rate of the raw data.
     :            If data had been downsampled but not converted, you will need to change "fs" in that conversion
@@ -487,7 +516,6 @@ def load_das_custom(t_start, t_end, d_start=0, d_end=0, convert=False, verbose=F
             #-- Open the file again for actual reading of data
             with h5py.File(filename, "r") as f:
                 #-- Did the user specify any cutting along distance axis?
-                #-- TODO: allow user to specify a vector of specific channels to pull.
                 #-- TODO: Logic is a bit rigid, requiring d_end to be specified and -then- check for nth_channel downsample.
                 #--        Surely a better way is possible...
                 if(d_end>0):
@@ -507,6 +535,12 @@ def load_das_custom(t_start, t_end, d_start=0, d_end=0, convert=False, verbose=F
                     if(verbose):
                         print("Returning channels over distances: {0}  --  {1}".format(dd[0],dd[-1]))
                         print("data: {0} x {1},  dd: {2}".format(np.shape(data_tmp)[0],np.shape(data_tmp)[1],np.shape(dd)))
+
+                #-- Did the user specify an array of specific indices?
+                elif(len(ichan)>0):
+                    dd = dd[ichan]
+                    data_tmp = f["Acquisition/Raw[0]/RawData"][i_pull_start:i_pull_end+1, ichan]
+
                 #-- Otherwise just return all channels
                 else:
                     data_tmp = f["Acquisition/Raw[0]/RawData"][i_pull_start:i_pull_end+1,:]
@@ -564,7 +598,7 @@ def load_das_custom(t_start, t_end, d_start=0, d_end=0, convert=False, verbose=F
     axis['dd'] = dd
 
 
-    if(return_axis):
+    if(return_axis or verbose):
         #-- Convert time-axis into numpy-happy date time objects
         # (also, not using the obspy UTCdatetime object)
         tt = np.arange(0, np.shape(data)[0]/fs, 1.0/fs) 
