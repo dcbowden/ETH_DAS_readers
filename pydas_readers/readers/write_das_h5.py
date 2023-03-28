@@ -46,7 +46,8 @@ def write_block(data2,headers,new_filename):
         subgroup_custom_user.attrs.create("MeasureLength",data=headers['lx'])
         subgroup_custom_user.attrs.create("StartDistance",data=headers['d0'])
         subgroup_custom_user.attrs.create("StopDistance",data=headers['d1'])
-
+        if('d0_absolute' in headers):
+            subgroup_custom_user.attrs.create("OriginalStartDistance",data=headers['d0_absolute'])
 
         subgroup_custom_system = subgroup_custom.create_group("SystemSettings")
         subgroup_custom_system.attrs.create("FibreLengthMultiplier",data=headers['fm'])
