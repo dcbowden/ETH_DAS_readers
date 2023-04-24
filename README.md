@@ -43,6 +43,6 @@ write_das_h5.write_block(data2, headers, "new_filename.h5")
 """
 
 
-Last updated: Jan 2023
+Last updated: Apr 2023
 daniel.bowden@erdw.ethz.ch
 patrick.paitz@erdw.ethz.ch 
