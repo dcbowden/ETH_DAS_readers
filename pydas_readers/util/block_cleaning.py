@@ -1,16 +1,3 @@
-"""
-Basic signal processing / cleaning tools, 
-assuming one has a contiguous numpy block of data.
-
-Current functions include: taper, detrend, trim,
-and a phase-weighted rolling average
-
-
-Daniel Bowden, ETH Zürich
-daniel.bowden@erdw.ethz.ch
-Last updated: Jan 2023
-"""
-
 import scipy.signal as ss
 import numpy as np
 from datetime import datetime, timedelta
@@ -44,6 +31,31 @@ def taper(data, taper_ratio=0.01):
         data[:lwind] *= taper
         data[-lwind:] *= np.flipud(taper)
     return data
+
+
+def demean(data):
+    """
+    Demean each individual trace separately
+
+    :param data: Data to remove mean. 2D numpy array [ npts, nchan ]
+                  OR a 1D numpy array [ npts, ]
+    :return: demeaned data
+    """
+    vector_input = False
+    if(data.ndim==1):
+        vector_input = True
+        data = data[:,None]
+        
+    if(data.dtype!="float64"):
+        data = data.astype('float64')
+
+    for i in range(np.shape(data)[1]):
+        data[:,i] = data[:,i] - np.mean(data[:,i])
+
+    if(vector_input):
+        return np.squeeze(data)
+    else:
+        return data
 
 def detrend(data, type='linear'):
     """
@@ -129,7 +141,7 @@ def trim(data, t_start, t_end, headers, axis=[]):
     else:
         return data[trim0:trim1, :].copy(), headers2
 
-def pws_rolling_average(data,ns):
+def pws_rolling_average(data,ns,exp=2):
     """
     Smooth data and remove incoherent traces
     Returned N'th trace is a phase-weighted average of [-ns:ns] neighboring traces
@@ -147,7 +159,7 @@ def pws_rolling_average(data,ns):
     dh = ss.hilbert(data,axis=0)
     for i in range(ns,nchan-ns-1):
         pw = np.mean(dh[:,i-ns:i+ns+1] / np.abs(dh[:,i-ns:i+ns+1]), axis=1)
-        data_pws[:,i] = np.real(pw**2 * np.mean(data[:,i-ns:i+ns+1],axis=1))
+        data_pws[:,i] = np.real(pw**exp * np.mean(data[:,i-ns:i+ns+1],axis=1))
     return data_pws
 
 
