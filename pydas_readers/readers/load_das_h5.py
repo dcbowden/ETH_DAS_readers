@@ -305,6 +305,19 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
             all_files += sorted(glob.glob(input_dir+t_step_dir+"*.h5"))
         t_step_day += timedelta(days=1)
 
+    #-- We'll repeat the above but with a different format of directory name (%Y-%m-%d vs %Y_%m_%d)
+    t_start_dir = (t_start - timedelta(minutes=1)).strftime('/%Y-%m-%d/')
+    t_start_day  = datetime.strptime(t_start_dir, '/%Y-%m-%d/')
+    t_end_dir   = (t_end + timedelta(minutes=1)).strftime('/%Y-%m-%d/')
+    t_end_day  = datetime.strptime(t_end_dir, '/%Y-%m-%d/')
+    t_step_day = t_start_day
+    while(t_step_day <= t_end_day):
+        t_step_dir = t_step_day.strftime('/%Y-%m-%d/')
+        #print(t_step_dir)
+        if(os.path.exists(input_dir+t_step_dir)):
+            all_files += sorted(glob.glob(input_dir+t_step_dir+"*.h5"))
+        t_step_day += timedelta(days=1)
+
     
     #----------------------------
     #-- Check for subdirectories based on epochs, and see if we can find files within accordingly
@@ -338,6 +351,22 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
             if(os.path.exists(this_epoch_dir+t_step_dir)):
                 all_files += sorted(glob.glob(this_epoch_dir+t_step_dir+"*.h5"))
         t_step_day += timedelta(days=1)
+
+    #-- We'll repeat the above but with a different format of directory name (%Y-%m-%d vs %Y_%m_%d)
+    t_start_dir = (t_start - timedelta(minutes=1)).strftime('/%Y-%m-%d/')
+    t_start_day  = datetime.strptime(t_start_dir, '/%Y-%m-%d/')
+    t_end_dir   = (t_end + timedelta(minutes=1)).strftime('/%Y-%m-%d/')
+    t_end_day  = datetime.strptime(t_end_dir, '/%Y-%m-%d/')
+    t_step_day = t_start_day
+    while(t_step_day <= t_end_day):
+        t_step_dir = t_step_day.strftime('/%Y-%m-%d/')
+        #print(t_step_dir)
+        for this_epoch_dir in epoch_dirs:
+            if(os.path.exists(this_epoch_dir+t_step_dir)):
+                all_files += sorted(glob.glob(this_epoch_dir+t_step_dir+"*.h5"))
+        t_step_day += timedelta(days=1)
+
+    
     
     #----------------------------
     #-- Hopefully we've found all the files. Sort them before moving on.
