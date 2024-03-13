@@ -90,42 +90,43 @@ def load_headers_only(file, verbose=False):
                 #print(group,k,f[group].attrs[k])
         headers = dict()
         for attr in l_attrs: 
-            if "OutputDataRate" in attr: 
+            if "OutputDataRate" == attr[1]: 
                 headers['fs'] = int(attr[-1])
-            if "OriginalDataRate" in attr: 
+            if "OriginalDataRate" == attr[1]: 
                 headers['fs_orig'] = int(attr[-1])
-            if "SpatialResolution" in attr: 
+            if "SpatialResolution" == attr[1]: 
                 #headers['dx'] = int(attr[-1])
                 headers['dx'] = float(attr[-1])
-            if "MeasureLength" in attr: 
+            if "MeasureLength" == attr[1]: 
                 headers['lx'] = int(attr[-1])
-            if "NumberOfLoci" in attr:
+            if "NumberOfLoci" == attr[1]:
                 headers['nchan'] = int(attr[-1])
-            if "Count" in attr:
+            if "Count" == attr[1]:
                 headers['npts'] = int(attr[-1])
-            if "PartStartTime" in attr: 
+            if "PartStartTime" == attr[1]: 
                 headers['t0'] = datetime.strptime(attr[-1].decode('ascii'),'%Y-%m-%dT%H:%M:%S.%f+00:00')
                 #t0 = UTCDateTime(attr[-1])
                 #t0 = t0._get_datetime()
-            if "PartEndTime" in attr: 
+            if "PartEndTime" == attr[1]: 
                 headers['t1'] = datetime.strptime(attr[-1].decode('ascii'),'%Y-%m-%dT%H:%M:%S.%f+00:00')
-            if "StartDistance" in attr:
+            if "StartDistance" == attr[1]:
                 headers['d0'] = float(attr[-1])
-            if "OriginalStartDistance" in attr:
+            if "OriginalStartDistance" == attr[1]:
                 headers['d0_absolute'] = float(attr[-1])
-            if "StopDistance" in attr:
+            if "StopDistance" == attr[1]:
                 headers['d1'] = float(attr[-1])
-            if "FibreLengthMultiplier" in attr:
+            if "FibreLengthMultiplier" == attr[1]:
                 headers['fm'] = float(attr[-1])
-            if "RawDataUnit" in attr:
+            if "RawDataUnit" == attr[1]:
                 headers['unit'] = attr[-1].decode('ascii')
-            if "GaugeLength" in attr:
+            if "GaugeLength" == attr[1]:
+                print(attr)
                 headers['gauge'] = float(attr[-1])
 
             ## Custom added headers, in case files were modified and then re-written
-            if "OriginalDataRate" in attr:
+            if "OriginalDataRate" == attr[1]:
                 headers['fs_orig'] = float(attr[-1])
-            if "AmpScaling" in attr:
+            if "AmpScaling" == attr[1]:
                 headers['amp_scaling'] = float(attr[-1])
            
         ## Add those custom defined headers if not already present
@@ -366,7 +367,6 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
                 all_files += sorted(glob.glob(this_epoch_dir+t_step_dir+"*.h5"))
         t_step_day += timedelta(days=1)
 
-    
     
     #----------------------------
     #-- Hopefully we've found all the files. Sort them before moving on.
