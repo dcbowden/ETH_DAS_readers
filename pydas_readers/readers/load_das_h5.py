@@ -120,7 +120,6 @@ def load_headers_only(file, verbose=False):
             if "RawDataUnit" == attr[1]:
                 headers['unit'] = attr[-1].decode('ascii')
             if "GaugeLength" == attr[1]:
-                print(attr)
                 headers['gauge'] = float(attr[-1])
 
             ## Custom added headers, in case files were modified and then re-written
