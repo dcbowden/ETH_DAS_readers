@@ -14,7 +14,7 @@ for raw PRODML files or for our converted / stripped files.
 
 Daniel Bowden, ETH Zürich
 daniel.bowden@erdw.ethz.ch
-Last updated: Jan 2023
+Last updated: Mar 2024
 """
 
 import os
