@@ -153,13 +153,32 @@ def pws_rolling_average(data,ns,exp=2):
     """
     data_pws = np.zeros(np.shape(data))
     nchan = np.shape(data)[1]
-    # Note: Andreas' version only took hilbert() of data as it went, rather than the whole block
-    #  This version makes a full copy to do hilbert on. This is more memory intesive, but it is 
-    #  a bit faster. Tradeoffs.
+    # Note: There's a few ways to set this up. 
+    # Option 1 is to hilbert() each chunk of data as you go. Slower, but takes less memory
+
+    # Option 2 is to hilbert() everything, but then do an average of each chunk. Straightforward
+    #		dh = ss.hilbert(data,axis=0)
+    #		for i in range(ns,nchan-ns-1):
+    #		    pw = np.mean(dh[:,i-ns:i+ns+1] / np.abs(dh[:,i-ns:i+ns+1]), axis=1)
+    #		    data_pws[:,i] = np.real(pw**exp * np.mean(data[:,i-ns:i+ns+1],axis=1))
+
+    # Option 3: rather than averaging traces each time, add 1 new one to the front and pop one off the back
     dh = ss.hilbert(data,axis=0)
     for i in range(ns,nchan-ns-1):
-        pw = np.mean(dh[:,i-ns:i+ns+1] / np.abs(dh[:,i-ns:i+ns+1]), axis=1)
-        data_pws[:,i] = np.real(pw**exp * np.mean(data[:,i-ns:i+ns+1],axis=1))
+        if(i==ns):
+            #-- First iteration
+            pw = np.mean(dh[:,i-ns:i+ns+1] / np.abs(dh[:,i-ns:i+ns+1]), axis=1)
+            av = np.mean(data[:,i-ns:i+ns+1], axis=1)
+        else:
+            #-- subsequently
+            pw = pw - (dh[:,i-ns-1] / np.abs(dh[:,i-ns-1])) / (ns*2+1)
+            pw = pw + (dh[:,i+ns] / np.abs(dh[:,i+ns])) / (ns*2+1)
+            av = av - data[:,i-ns-1] / (ns*2+1)
+            av = av + data[:,i+ns] / (ns*2+1)
+        data_pws[:,i] = np.real(pw**exp * av)
+    return data_pws
+
+
     return data_pws
 
 
