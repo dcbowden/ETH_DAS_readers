@@ -91,9 +91,9 @@ def load_headers_only(file, verbose=False):
         headers = dict()
         for attr in l_attrs: 
             if "OutputDataRate" == attr[1]: 
-                headers['fs'] = int(attr[-1])
+                headers['fs'] = round(attr[-1],ndigits=3)
             if "OriginalDataRate" == attr[1]: 
-                headers['fs_orig'] = int(attr[-1])
+                headers['fs_orig'] = round(attr[-1],ndigits=3)
             if "SpatialResolution" == attr[1]: 
                 #headers['dx'] = int(attr[-1])
                 headers['dx'] = float(attr[-1])
@@ -280,9 +280,9 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
     #-- Check further, if we're requesting a span of more than one day
     #-- e.g., if t_end_dir is onto the next day or multiple days
     #-- We'll check a potential range of days. Specify the start day and end day in case they're different
-    t_start_dir = (t_start - timedelta(minutes=1)).strftime('/%Y_%m_%d/')
+    t_start_dir = (t_start - timedelta(minutes=3)).strftime('/%Y_%m_%d/')
     t_start_day  = datetime.strptime(t_start_dir, '/%Y_%m_%d/')
-    t_end_dir   = (t_end + timedelta(minutes=1)).strftime('/%Y_%m_%d/')
+    t_end_dir   = (t_end + timedelta(minutes=3)).strftime('/%Y_%m_%d/')
     t_end_day  = datetime.strptime(t_end_dir, '/%Y_%m_%d/')
     t_step_day = t_start_day
     while(t_step_day <= t_end_day):
@@ -293,22 +293,22 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
         t_step_day += timedelta(days=1)
 
     #-- We'll repeat the above but with a different format of directory name (%Y%m%d vs %Y_%m_%d)
-    t_start_dir = (t_start - timedelta(minutes=1)).strftime('/%Y%m%d/')
+    t_start_dir = (t_start - timedelta(minutes=3)).strftime('/%Y%m%d/')
     t_start_day  = datetime.strptime(t_start_dir, '/%Y%m%d/')
-    t_end_dir   = (t_end + timedelta(minutes=1)).strftime('/%Y%m%d/')
+    t_end_dir   = (t_end + timedelta(minutes=3)).strftime('/%Y%m%d/')
     t_end_day  = datetime.strptime(t_end_dir, '/%Y%m%d/')
     t_step_day = t_start_day
     while(t_step_day <= t_end_day):
         t_step_dir = t_step_day.strftime('/%Y%m%d/')
-        #print(t_step_dir)
+        # print(t_step_dir)
         if(os.path.exists(input_dir+t_step_dir)):
             all_files += sorted(glob.glob(input_dir+t_step_dir+"*.h5"))
         t_step_day += timedelta(days=1)
 
     #-- We'll repeat the above but with a different format of directory name (%Y-%m-%d vs %Y_%m_%d)
-    t_start_dir = (t_start - timedelta(minutes=1)).strftime('/%Y-%m-%d/')
+    t_start_dir = (t_start - timedelta(minutes=3)).strftime('/%Y-%m-%d/')
     t_start_day  = datetime.strptime(t_start_dir, '/%Y-%m-%d/')
-    t_end_dir   = (t_end + timedelta(minutes=1)).strftime('/%Y-%m-%d/')
+    t_end_dir   = (t_end + timedelta(minutes=3)).strftime('/%Y-%m-%d/')
     t_end_day  = datetime.strptime(t_end_dir, '/%Y-%m-%d/')
     t_step_day = t_start_day
     while(t_step_day <= t_end_day):
@@ -321,9 +321,9 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
     
     #----------------------------
     #-- Check for subdirectories based on epochs, and see if we can find files within accordingly
-    t_start_dir = (t_start - timedelta(minutes=1)).strftime('/%Y%m%d/')
+    t_start_dir = (t_start - timedelta(minutes=3)).strftime('/%Y%m%d/')
     t_start_day  = datetime.strptime(t_start_dir, '/%Y%m%d/')
-    t_end_dir   = (t_end + timedelta(minutes=1)).strftime('/%Y%m%d/')
+    t_end_dir   = (t_end + timedelta(minutes=3)).strftime('/%Y%m%d/')
     t_end_day  = datetime.strptime(t_end_dir, '/%Y%m%d/')
 
     epoch_dirs = sorted(glob.glob(input_dir+"/*epoch*"))
@@ -339,9 +339,9 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
         t_step_day += timedelta(days=1)
 
     #-- We'll repeat the above but with a different format of directory name (%Y%m%d vs %Y_%m_%d)
-    t_start_dir = (t_start - timedelta(minutes=1)).strftime('/%Y_%m_%d/')
+    t_start_dir = (t_start - timedelta(minutes=3)).strftime('/%Y_%m_%d/')
     t_start_day  = datetime.strptime(t_start_dir, '/%Y_%m_%d/')
-    t_end_dir   = (t_end + timedelta(minutes=1)).strftime('/%Y_%m_%d/')
+    t_end_dir   = (t_end + timedelta(minutes=3)).strftime('/%Y_%m_%d/')
     t_end_day  = datetime.strptime(t_end_dir, '/%Y_%m_%d/')
     t_step_day = t_start_day
     while(t_step_day <= t_end_day):
@@ -353,9 +353,9 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
         t_step_day += timedelta(days=1)
 
     #-- We'll repeat the above but with a different format of directory name (%Y-%m-%d vs %Y_%m_%d)
-    t_start_dir = (t_start - timedelta(minutes=1)).strftime('/%Y-%m-%d/')
+    t_start_dir = (t_start - timedelta(minutes=3)).strftime('/%Y-%m-%d/')
     t_start_day  = datetime.strptime(t_start_dir, '/%Y-%m-%d/')
-    t_end_dir   = (t_end + timedelta(minutes=1)).strftime('/%Y-%m-%d/')
+    t_end_dir   = (t_end + timedelta(minutes=3)).strftime('/%Y-%m-%d/')
     t_end_day  = datetime.strptime(t_end_dir, '/%Y-%m-%d/')
     t_step_day = t_start_day
     while(t_step_day <= t_end_day):
@@ -375,9 +375,13 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
     #-- To avoid loading every header of every file in the directory, do a quick search of candidates based on filename
     #-- We're only searching based broadly on the minutes listed, rather than trying to match filenames exactly
     consider_files = []
-    t_step = t_start-timedelta(minutes=1)
-    
-    while(t_step<=t_end):
+    t_step = t_start-timedelta(minutes=3)
+    t_end_check = t_end+timedelta(minutes=3)
+    if(verbose):
+        print("Confirming a list of files, in loop over:")
+        print(t_step)
+        print(t_end_check)
+    while(t_step<=t_end_check):
         ## glob seems slower than my for loop over the previously indexed/globbed array
         #consider_files += glob.glob("{0}/*{1}*.h5".format(input_dir,t_step.strftime('%Y%m%d_%H%M')))
 
@@ -397,7 +401,7 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
         t_step = t_start
         while(t_step<t_end):
             consider_string = "{0}".format(t_step.strftime('%Y%m%d'))
-            print(consider_string)
+            # print(consider_string)
             for file in all_files:
                 if(consider_string in file):
                     consider_files += [file]
@@ -568,6 +572,9 @@ def load_das_custom(t_start, t_end, d_start=0, d_end=0, ichan=[], mapchan=[], co
                             print("pulling every {0} traces".format(nth_channel))
                         data_tmp = f["Acquisition/Raw[0]/RawData"][i_pull_start:i_pull_end+1, d_pull]
                         dd = dd[d_pull]
+                        dx = dx*nth_channel
+                        if(verbose):
+                            print("New dx = {0}".format(dx))
                     else:
                         data_tmp = f["Acquisition/Raw[0]/RawData"][i_pull_start:i_pull_end+1, id1:id2+1]
                         dd = dd[id1:id2+1]
@@ -585,7 +592,7 @@ def load_das_custom(t_start, t_end, d_start=0, d_end=0, ichan=[], mapchan=[], co
 
                 elif(len(mapchan)>0):
                     zero_correct = -int(np.round(headers['d0'] / (headers['dx']*headers['fm'])))
-                    dd = dd[mapchan+zero_correct]
+                    dd = dd[mapchan+zero_correct].astype(int)
                     data_tmp = f["Acquisition/Raw[0]/RawData"][i_pull_start:i_pull_end+1, mapchan+zero_correct]
 
 
@@ -632,6 +639,11 @@ def load_das_custom(t_start, t_end, d_start=0, d_end=0, ichan=[], mapchan=[], co
     headers['t1'] = final_t1
     headers['npts'] = np.shape(data)[0]
     headers['nchan'] = np.shape(data)[1]
+    if(d_end>0 and nth_channel > 0):
+        dx = dx*nth_channel
+        if(verbose):
+            print("New dx = {0}".format(dx))
+    headers['dx'] = dx
 
 
     axis = dict()
@@ -666,6 +678,7 @@ def load_das_custom(t_start, t_end, d_start=0, d_end=0, ichan=[], mapchan=[], co
         print("Requested time chunk: {0}  --  {1}".format(t_start.strftime('%Y/%m/%d %H:%M:%S.%f'),t_end.strftime('%Y/%m/%d %H:%M:%S.%f')))
         print("Returning time chunk: {0}  --  {1}".format(date_times[0].strftime('%Y/%m/%d %H:%M:%S.%f'),date_times[-1].strftime('%Y/%m/%d %H:%M:%S.%f')))
         print("Data[ {0} samples, {1} channels ]".format(np.shape(data)[0],np.shape(data)[1]))
+        print(headers)
 
 
     #-- Convert everything
