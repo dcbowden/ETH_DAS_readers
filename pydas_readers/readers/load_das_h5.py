@@ -370,6 +370,9 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
     #----------------------------
     #-- Hopefully we've found all the files. Sort them before moving on.
     all_files = sorted(all_files)
+    if(verbose):
+        print("All files potentially relevant that were found:")
+        print(all_files)
 
     #----------------------------
     #-- To avoid loading every header of every file in the directory, do a quick search of candidates based on filename
@@ -393,19 +396,25 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
                 consider_files += [file]
         t_step += timedelta(minutes=1)
 
-    #-- If using longer (i.e., 10 min blocks), then we might miss a file this way
-    #-- Kludgy fix? Repeat with hour resolution if needed
-    if(len(consider_files)==0):
+    #-- If using longer (i.e., 10 min or 1-day blocks), then we might miss a file this way
+    #-- Kludgy fix? Repeat with multi-day resolution if needed
+    #if(len(consider_files)==0):
+    #    if(verbose):
+    #        print("Warning: not enough valid files found for consideration yet, trying to find anything within the day")
+    #    t_step = t_start-timedelta(days=1)
+    #    while(t_step<t_end):
+    #        consider_string = "{0}".format(t_step.strftime('%Y%m%d'))
+    #        # print(consider_string)
+    #        for file in all_files:
+    #            if(consider_string in file):
+    #                consider_files += [file]
+    #        t_step += timedelta(days=1)
+    #-- Even worse fix? Just go with the full file list
+    if(len(consider_files)<200):
         if(verbose):
-            print("Warning: no valid files found for consideration yet, trying to find anything within the day")
-        t_step = t_start
-        while(t_step<t_end):
-            consider_string = "{0}".format(t_step.strftime('%Y%m%d'))
-            # print(consider_string)
-            for file in all_files:
-                if(consider_string in file):
-                    consider_files += [file]
-            t_step += timedelta(hours=1)
+            print("Warning: less than 200 possible files found...")
+            print(" We're going to check headers of all them to be sure")
+        consider_files = all_files
 
     if(verbose):
         print("Considering the following files to look for our data:")
