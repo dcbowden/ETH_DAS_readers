@@ -410,7 +410,7 @@ def make_file_list(t_start, t_end, input_dir, verbose=False):
     #                consider_files += [file]
     #        t_step += timedelta(days=1)
     #-- Even worse fix? Just go with the full file list
-    if(len(consider_files)<200):
+    if(len(consider_files)<4):
         if(verbose):
             print("Warning: less than 200 possible files found...")
             print(" We're going to check headers of all them to be sure")
